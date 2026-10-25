@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Migration readiness · {{.Project}}</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--ink:#1d1d1b;--muted:#6b6a65;--line:#e4e2db;--red:#b42318;--red-bg:#fdecea;--amber:#9a5b00;--amber-bg:#fff4e0;--blue:#1d5fa8;--blue-bg:#e8f1fb;--green:#18794e;--green-bg:#e6f4ec}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1e1c;--ink:#ecebe6;--muted:#9c9a92;--line:#2f2e2b;--red:#f2877d;--red-bg:#3a1c19;--amber:#f0b45a;--amber-bg:#3a2a12;--blue:#7fb2ec;--blue-bg:#16263a;--green:#6fcf9c;--green-bg:#14301f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:960px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.v{font-size:22px;font-weight:650;margin-top:2px}
+.good .v{color:var(--green)}.warn .v{color:var(--amber)}.bad .v{color:var(--red)}
+table.facts{width:100%;border-collapse:collapse}
+table.facts td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.facts td:first-child{color:var(--muted);width:160px}
+h2{font-size:17px;margin:32px 0 12px}
+.f{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.f.blocker{border-left-color:var(--red)}.f.warning{border-left-color:var(--amber)}.f.info{border-left-color:var(--blue)}
+.f h3{margin:0;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;letter-spacing:.04em}
+.blocker .badge{background:var(--red-bg);color:var(--red)}.warning .badge{background:var(--amber-bg);color:var(--amber)}.info .badge{background:var(--blue-bg);color:var(--blue)}
+.meta{color:var(--muted);font-size:12px;font-weight:400}
+.fix{margin:6px 0}
+ul.ev{margin:6px 0 0;padding:0;list-style:none}
+ul.ev li{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);overflow-wrap:anywhere}
+footer{color:var(--muted);font-size:12px;margin-top:40px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Migration readiness: {{.Project}}</h1>
+  <div class="sub">{{.Tool}} {{.Version}} · scanned {{.ScannedAt}} · generated locally, nothing uploaded</div>
+
+  <div class="grid">
+    <div class="card {{tone .Summary}}"><div class="k">Score</div><div class="v">{{.Summary.Score}}/100</div><div>{{.Summary.Readiness}}</div></div>
+    <div class="card"><div class="k">Blockers / warnings</div><div class="v">{{.Summary.Blockers}} / {{.Summary.Warnings}}</div><div>{{.Summary.Infos}} info</div></div>
+    <div class="card"><div class="k">Rough effort</div><div class="v">{{printf "%.0f" .Summary.EffortLow}}–{{printf "%.0f" .Summary.EffortHigh}} h</div><div>incl. containerize + cutover</div></div>
+    <div class="card"><div class="k">Platform</div><div class="v">{{.Facts.Platform}}</div><div>Drupal {{orDash .Facts.DrupalCore}}</div></div>
+  </div>
+
+  <div class="card">
+    <table class="facts">
+      <tr><td>PHP</td><td>{{php .Facts}}</td></tr>
+      <tr><td>Docroot</td><td>{{.Facts.Docroot}}</td></tr>
+      <tr><td>Packages</td><td>{{.Facts.Packages}} (composer.lock: {{yesNo .Facts.ComposerLock}})</td></tr>
+      <tr><td>Custom modules</td><td>{{joinList .Facts.CustomModules}}</td></tr>
+      <tr><td>Custom themes</td><td>{{joinList .Facts.CustomThemes}}</td></tr>
+      <tr><td>Sites</td><td>{{joinList .Facts.Sites}}</td></tr>
+      <tr><td>Config sync</td><td>{{orDash .Facts.ConfigSyncDir}}</td></tr>
+      <tr><td>Files scanned</td><td>{{.Facts.FilesScanned}}</td></tr>
+    </table>
+  </div>
+
+  {{with .Facts.Runtime}}
+  <h2>Runtime <span class="meta">from drush stagecoach:inspect</span></h2>
+  <div class="card">
+    <table class="facts">
+      <tr><td>Environment</td><td>{{.Platform}}{{if .Env}} / {{.Env}}{{end}}</td></tr>
+      <tr><td>PHP</td><td>{{orDash .PHP}}</td></tr>
+      <tr><td>Database</td><td>{{orDash .Database}} · {{printf "%.0f" .DBSizeMB}} MB ({{printf "%.0f" .DBTransferMB}} MB to transfer, excl. cache tables)</td></tr>
+      <tr><td>Files</td><td>{{.FilesCount}} managed · {{printf "%.0f" .FilesMB}} MB</td></tr>
+      <tr><td>Modules</td><td>{{.EnabledModules}} enabled ({{.CustomEnabled}} custom)</td></tr>
+      <tr><td>Cache</td><td>{{orDash .CacheBackend}}</td></tr>
+      <tr><td>Search</td><td>{{joinList .SearchBackends}}</td></tr>
+      <tr><td>Mail</td><td>{{orDash .MailInterface}}</td></tr>
+      <tr><td>Dockerfile extensions</td><td><code>{{joinList .DockerExtensions}}</code></td></tr>
+      {{if .CollectorErrors}}<tr><td>Collector errors</td><td>{{joinList .CollectorErrors}}</td></tr>{{end}}
+    </table>
+  </div>
+  {{end}}
+
+  <h2>Findings</h2>
+  {{if not .Findings}}<div class="card">No platform lock-in found.</div>{{end}}
+  {{range .Findings}}
+  <div class="f {{.Severity}}">
+    <h3><span class="badge">{{upper .Severity}}</span>{{.Title}}<span class="meta">{{.ID}} · {{.Category}} · ~{{.EffortHours}}h</span></h3>
+    <p class="fix">{{.Fix}}</p>
+    <ul class="ev">{{range .Evidence}}<li>{{evidence .}}</li>{{end}}{{if .Truncated}}<li>… and {{.Truncated}} more</li>{{end}}</ul>
+  </div>
+  {{end}}
+
+  <footer>Effort figures are rough planning estimates from static analysis only. {{if not .Facts.Runtime}}Add <code>--runtime runtime.json</code> (from <code>drush stagecoach:inspect</code>) for database size, enabled modules and backends.{{end}} · stagecoach.sh</footer>
+</main>
+</body>
+</html>

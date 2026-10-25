@@ -1,0 +1,1 @@
+<?php function my_feature_cron() { if (getenv("PANTHEON_ENVIRONMENT") == "live") {} }

@@ -1,0 +1,1 @@
+{"packages":[{"name":"drupal/core","version":"10.3.6"},{"name":"drupal/search_api_pantheon","version":"8.2.1"},{"name":"drupal/search_api_solr","version":"4.3.4"},{"name":"drupal/redis","version":"1.8.0"},{"name":"pantheon-systems/drupal-integrations","version":"10.0.0"},{"name":"drupal/pantheon_advanced_page_cache","version":"2.2.0"}],"packages-dev":[]}
