@@ -1,0 +1,4 @@
+jobs:
+  deploy:
+    steps:
+      - run: terminus env:deploy mysite.live

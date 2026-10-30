@@ -1,0 +1,1 @@
+{"require":{"php":"^8.1","drupal/core-recommended":"^9.5","acquia/blt":"^13","drupal/acquia_connector":"^4","drupal/acquia_purge":"^1.3","drupal/acquia_search":"^3","drupal/memcache":"^2.5","drupal/simplesamlphp_auth":"^3","drupal/symfony_mailer":"^1"}}

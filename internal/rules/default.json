@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "pantheon.yml",
+      "title": "pantheon.yml platform config",
+      "platform": "pantheon", "category": "platform", "severity": "info", "effort_hours": 1,
+      "fix": "Carry php_version, database version, drush_version and protected_web_paths over into the Dockerfile and nginx config, then delete the file.",
+      "match": { "files": ["pantheon.yml"] }
+    },
+    {
+      "id": "pantheon.upstream",
+      "title": "Pantheon custom upstream config",
+      "platform": "pantheon", "category": "platform", "severity": "info", "effort_hours": 0.5,
+      "fix": "Upstream updates stop after migration. Track core/contrib updates with Composer (and Renovate or Dependabot) instead.",
+      "match": { "files": ["pantheon.upstream.yml"] }
+    },
+    {
+      "id": "pantheon.quicksilver",
+      "title": "Quicksilver workflow hooks",
+      "platform": "pantheon", "category": "deploy", "severity": "warning", "effort_hours": 3,
+      "fix": "Quicksilver scripts (deploy, sync_code, clone_database…) need to become Stagecoach post-deploy hooks or GitHub Actions steps.",
+      "match": {
+        "files": ["private/scripts", "web/private/scripts"],
+        "content": { "paths": ["pantheon.yml"], "pattern": "^\\s*workflows\\s*:" }
+      }
+    },
+    {
+      "id": "pantheon.settings_include",
+      "title": "settings.php includes settings.pantheon.php",
+      "platform": "pantheon", "category": "settings", "severity": "warning", "effort_hours": 2,
+      "fix": "Remove the include and add settings.stagecoach.php, which reads DB credentials, hash salt and trusted hosts from environment variables.",
+      "match": { "content": { "paths": ["**/sites/*/settings.php"], "pattern": "settings\\.pantheon\\.php" } }
+    },
+    {
+      "id": "pantheon.env_vars",
+      "title": "Code reads Pantheon environment variables",
+      "platform": "pantheon", "category": "code", "severity": "warning", "effort_hours": 2,
+      "fix": "Swap PANTHEON_* / PRESSFLOW_SETTINGS checks for a platform-neutral variable (e.g. getenv('STAGECOACH_ENV')).",
+      "match": { "content": {
+        "paths": ["**/*.php", "**/*.module", "**/*.inc", "**/*.install", "**/*.theme"],
+        "exclude": ["**/settings.pantheon.php"],
+        "pattern": "PANTHEON_ENVIRONMENT|PANTHEON_SITE_NAME|PRESSFLOW_SETTINGS|PANTHEON_INDEX_HOST"
+      } }
+    },
+    {
+      "id": "pantheon.drupal_integrations",
+      "title": "pantheon-systems/drupal-integrations",
+      "platform": "pantheon", "category": "composer", "severity": "info", "effort_hours": 0.5,
+      "fix": "Remove after cutover. It only scaffolds Pantheon-specific settings files.",
+      "match": { "composer": ["pantheon-systems/drupal-integrations"] }
+    },
+    {
+      "id": "pantheon.search",
+      "title": "Pantheon Search (search_api_pantheon)",
+      "platform": "pantheon", "category": "search", "severity": "blocker", "effort_hours": 8,
+      "fix": "Set up Solr (in-cluster or hosted) or OpenSearch, point the Search API server at it, and reindex before cutover.",
+      "match": { "composer": ["drupal/search_api_pantheon"] }
+    },
+    {
+      "id": "pantheon.advanced_page_cache",
+      "title": "Pantheon Advanced Page Cache",
+      "platform": "pantheon", "category": "cdn", "severity": "warning", "effort_hours": 4,
+      "fix": "Replace with Purge plus a CDN purger (Cloudflare, CloudFront, Fastly) or Varnish with cache-tag invalidation.",
+      "match": { "composer": ["drupal/pantheon_advanced_page_cache"] }
+    },
+    {
+      "id": "pantheon.terminus_ci",
+      "title": "CI pipelines call Terminus",
+      "platform": "pantheon", "category": "deploy", "severity": "warning", "effort_hours": 3,
+      "fix": "Replace Terminus deploy steps with an image build and a stagecoach deploy step.",
+      "match": { "content": {
+        "paths": [".github/workflows/*.yml", ".github/workflows/*.yaml", ".circleci/config.yml", ".gitlab-ci.yml", "bitbucket-pipelines.yml"],
+        "pattern": "\\bterminus\\b"
+      } }
+    },
+
+    {
+      "id": "acquia.site_php",
+      "title": "settings.php includes Acquia's /var/www/site-php credentials file",
+      "platform": "acquia", "category": "settings", "severity": "blocker", "effort_hours": 2,
+      "fix": "Acquia injects database credentials through this include, so the site won't boot without it elsewhere. Read credentials from env vars backed by a Kubernetes Secret.",
+      "match": { "content": { "paths": ["**/sites/*/settings.php", "**/sites/*/settings/*.php"], "pattern": "/var/www/site-php" } }
+    },
+    {
+      "id": "acquia.env_vars",
+      "title": "Code reads Acquia AH_* environment variables",
+      "platform": "acquia", "category": "code", "severity": "warning", "effort_hours": 2,
+      "fix": "Swap AH_SITE_ENVIRONMENT / AH_SITE_GROUP checks for a platform-neutral variable (e.g. getenv('STAGECOACH_ENV')).",
+      "match": { "content": {
+        "paths": ["**/*.php", "**/*.module", "**/*.inc", "**/*.install", "**/*.theme"],
+        "pattern": "AH_SITE_ENVIRONMENT|AH_SITE_GROUP|AH_SITE_NAME|AH_PRODUCTION|AH_NON_PRODUCTION"
+      } }
+    },
+    {
+      "id": "acquia.cloud_hooks",
+      "title": "Acquia Cloud Hooks",
+      "platform": "acquia", "category": "deploy", "severity": "warning", "effort_hours": 3,
+      "fix": "Port post-code-deploy / post-db-copy hook scripts to Stagecoach post-deploy hooks (drush deploy, cache rebuild, sanitization).",
+      "match": { "files": ["hooks/*/post-code-deploy", "hooks/*/post-code-update", "hooks/*/post-db-copy", "hooks/*/post-files-copy"] }
+    },
+    {
+      "id": "acquia.pipelines",
+      "title": "Acquia Pipelines config",
+      "platform": "acquia", "category": "deploy", "severity": "warning", "effort_hours": 3,
+      "fix": "Rebuild the pipeline as a GitHub Actions workflow that builds and pushes an image.",
+      "match": { "files": ["acquia-pipelines.yml", "acquia-pipelines.yaml"] }
+    },
+    {
+      "id": "acquia.blt",
+      "title": "Acquia BLT",
+      "platform": "acquia", "category": "composer", "severity": "warning", "effort_hours": 6,
+      "fix": "BLT's build and deploy tasks assume Acquia's build-artifact workflow. Move them to composer scripts and a Docker build.",
+      "match": { "composer": ["acquia/blt"] }
+    },
+    {
+      "id": "acquia.recommended_settings",
+      "title": "Acquia settings packages",
+      "platform": "acquia", "category": "settings", "severity": "warning", "effort_hours": 2,
+      "fix": "These packages wire in Acquia-specific settings. Replace them with settings.stagecoach.php.",
+      "match": { "composer": ["acquia/drupal-recommended-settings", "acquia/memcache-settings"] }
+    },
+    {
+      "id": "acquia.connector",
+      "title": "Acquia Connector",
+      "platform": "acquia", "category": "composer", "severity": "info", "effort_hours": 0.5,
+      "fix": "Uninstall after cutover.",
+      "match": { "composer": ["drupal/acquia_connector"] }
+    },
+    {
+      "id": "acquia.purge",
+      "title": "Acquia Purge (Varnish/Platform CDN)",
+      "platform": "acquia", "category": "cdn", "severity": "warning", "effort_hours": 4,
+      "fix": "Replace with Purge plus a CDN purger (Cloudflare, CloudFront, Fastly) or Varnish with cache-tag invalidation.",
+      "match": { "composer": ["drupal/acquia_purge"] }
+    },
+    {
+      "id": "acquia.search",
+      "title": "Acquia Search",
+      "platform": "acquia", "category": "search", "severity": "blocker", "effort_hours": 8,
+      "fix": "Set up Solr (in-cluster or hosted) or OpenSearch, point the Search API server at it, and reindex before cutover.",
+      "match": { "composer": ["drupal/acquia_search", "drupal/acquia_search_solr"] }
+    },
+    {
+      "id": "acquia.site_factory",
+      "title": "Acquia Cloud Site Factory",
+      "platform": "acquia", "category": "platform", "severity": "blocker", "effort_hours": 40,
+      "fix": "Site Factory fleets need their own per-site migration plan. Scope this separately.",
+      "match": { "composer": ["drupal/acsf"] }
+    },
+    {
+      "id": "acquia.gfs_paths",
+      "title": "Hardcoded Acquia file-system paths",
+      "platform": "acquia", "category": "files", "severity": "warning", "effort_hours": 2,
+      "fix": "Point file_public_path / file_private_path at a mounted volume or S3 (s3fs) instead of /mnt/gfs or /mnt/files.",
+      "match": { "content": {
+        "paths": ["**/*.php", "**/*.module", "**/*.inc", "**/*.install"],
+        "pattern": "/mnt/gfs|/mnt/files/"
+      } }
+    },
+
+    {
+      "id": "generic.memcache",
+      "title": "Memcache cache backend",
+      "platform": "generic", "category": "cache", "severity": "warning", "effort_hours": 2,
+      "fix": "Run memcached in-cluster (or ElastiCache), or switch to Redis (drupal/redis).",
+      "match": { "composer": ["drupal/memcache"] }
+    },
+    {
+      "id": "generic.redis",
+      "title": "Redis cache backend",
+      "platform": "generic", "category": "cache", "severity": "info", "effort_hours": 1,
+      "fix": "Run Redis (in-cluster or a managed service) and pass connection details as env vars.",
+      "match": { "composer": ["drupal/redis"] }
+    },
+    {
+      "id": "generic.solr",
+      "title": "Search API Solr",
+      "platform": "generic", "category": "search", "severity": "info", "effort_hours": 1,
+      "fix": "Needs a reachable Solr service. Budget the config-set upload and reindex.",
+      "match": { "composer": ["drupal/search_api_solr"] },
+      "suppressed_by": ["pantheon.search", "acquia.search"]
+    },
+    {
+      "id": "generic.saml",
+      "title": "SimpleSAMLphp single sign-on",
+      "platform": "generic", "category": "auth", "severity": "warning", "effort_hours": 4,
+      "fix": "Move SimpleSAMLphp config and certificates into a Secret. If hostnames change, re-register the SP/ACS URL with the IdP.",
+      "match": { "composer": ["drupal/simplesamlphp_auth", "simplesamlphp/simplesamlphp"] }
+    },
+    {
+      "id": "generic.no_mail_transport",
+      "title": "No SMTP / mail-API module",
+      "platform": "generic", "category": "mail", "severity": "info", "effort_hours": 2,
+      "fix": "Containers usually have no local MTA, so PHP mail() will fail. Add Symfony Mailer (or an SMTP / API module) and configure a transport.",
+      "match": { "composer_none": ["drupal/symfony_mailer", "drupal/symfony_mailer_lite", "drupal/smtp", "drupal/swiftmailer", "drupal/phpmailer_smtp", "drupal/mailgun", "drupal/sendgrid_integration", "drupal/postmark"] }
+    },
+    {
+      "id": "generic.private_files",
+      "title": "Private file system configured",
+      "platform": "generic", "category": "files", "severity": "info", "effort_hours": 1,
+      "fix": "Private files need a persistent volume (ReadWriteMany) or a private S3 bucket.",
+      "match": { "content": { "paths": ["**/sites/*/settings.php", "**/sites/*/settings.*.php"], "pattern": "file_private_path" } }
+    },
+    {
+      "id": "generic.object_storage",
+      "title": "Files already on object storage",
+      "platform": "generic", "category": "files", "severity": "info", "effort_hours": 0,
+      "fix": "Good news: no file-system migration needed, just re-point credentials.",
+      "match": { "composer": ["drupal/s3fs", "drupal/flysystem_s3"] }
+    }
+  ]
+}

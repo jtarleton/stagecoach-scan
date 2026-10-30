@@ -1,0 +1,7 @@
+api_version: 1
+php_version: 8.2
+workflows:
+  deploy:
+    after:
+      - type: webphp
+        script: private/scripts/drush_deploy.php

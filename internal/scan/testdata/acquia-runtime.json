@@ -1,0 +1,209 @@
+{
+  "schema": "stagecoach.runtime/v1",
+  "generated_at": "2026-10-25T03:03:47+00:00",
+  "errors": [],
+  "environment": {
+    "platform": "acquia",
+    "env": "prod"
+  },
+  "drupal": {
+    "version": "10.3.6",
+    "install_profile": "standard",
+    "default_langcode": "en",
+    "languages": 2,
+    "default_theme": "olivero",
+    "admin_theme": "claro"
+  },
+  "php": {
+    "version": "8.1.27",
+    "extensions": [
+      "calendar",
+      "core",
+      "ctype",
+      "curl",
+      "date",
+      "dom",
+      "exif",
+      "ffi",
+      "fileinfo",
+      "filter",
+      "ftp",
+      "gd",
+      "gettext",
+      "hash",
+      "iconv",
+      "igbinary",
+      "intl",
+      "json",
+      "libxml",
+      "mbstring",
+      "mysqli",
+      "mysqlnd",
+      "opcache",
+      "openssl",
+      "pcntl",
+      "pcre",
+      "pdo",
+      "pdo_mysql",
+      "pdo_pgsql",
+      "pdo_sqlite",
+      "pgsql",
+      "phar",
+      "posix",
+      "random",
+      "readline",
+      "redis",
+      "reflection",
+      "session",
+      "shmop",
+      "simplexml",
+      "sockets",
+      "sodium",
+      "spl",
+      "sqlite3",
+      "standard",
+      "sysvmsg",
+      "sysvsem",
+      "sysvshm",
+      "tokenizer",
+      "xml",
+      "xmlreader",
+      "xmlwriter",
+      "xsl",
+      "zip",
+      "zlib"
+    ],
+    "memory_limit": "-1",
+    "max_execution_time": "0",
+    "upload_max_filesize": "2M",
+    "post_max_size": "8M"
+  },
+  "database": {
+    "driver": "mysql",
+    "version": "8.0.36",
+    "size_mb": 15360.0,
+    "table_count": 3,
+    "cache_tables_mb": 3072.0,
+    "largest_tables": [
+      {
+        "name": "cache_render",
+        "size_mb": 3072,
+        "rows_estimate": 900
+      },
+      {
+        "name": "node__body",
+        "size_mb": 200,
+        "rows_estimate": 50000
+      },
+      {
+        "name": "old_log",
+        "size_mb": 1,
+        "rows_estimate": 10
+      }
+    ],
+    "non_innodb_tables": [
+      {
+        "name": "old_log",
+        "engine": "MyISAM"
+      }
+    ]
+  },
+  "modules": {
+    "count": 6,
+    "enabled": [
+      {
+        "name": "node",
+        "type": "core",
+        "version": null
+      },
+      {
+        "name": "acquia_connector",
+        "type": "contrib",
+        "version": null
+      },
+      {
+        "name": "acquia_purge",
+        "type": "contrib",
+        "version": null
+      },
+      {
+        "name": "memcache",
+        "type": "contrib",
+        "version": null
+      },
+      {
+        "name": "simplesamlphp_auth",
+        "type": "contrib",
+        "version": null
+      },
+      {
+        "name": "legacy",
+        "type": "custom",
+        "version": null
+      }
+    ]
+  },
+  "files": {
+    "public_path": "sites/default/files",
+    "private_path_set": true,
+    "managed": {
+      "public": {
+        "count": 42000,
+        "size_mb": 8200.5
+      },
+      "private": {
+        "count": 300,
+        "size_mb": 120.0
+      }
+    }
+  },
+  "cache": {
+    "default_backend": "cache.backend.memcache",
+    "bin_overrides": [],
+    "redis_configured": false,
+    "memcache_configured": true
+  },
+  "search": {
+    "servers": [
+      {
+        "id": "acquia",
+        "backend": "search_api_solr",
+        "connector": "solr_acquia_connector",
+        "status": true
+      }
+    ],
+    "index_count": 0
+  },
+  "mail": {
+    "default_interface": "symfony_mailer",
+    "symfony_mailer": true,
+    "symfony_mailer_lite": false,
+    "smtp": false
+  },
+  "cron": {
+    "last_run": "2025-10-25T00:00:00+00:00",
+    "automated_cron": true,
+    "ultimate_cron": false
+  },
+  "purge": {
+    "enabled": false,
+    "purgers": []
+  },
+  "queues": [
+    {
+      "name": "purge_queue",
+      "items": 4200
+    },
+    {
+      "name": "small",
+      "items": 3
+    }
+  ],
+  "http": {
+    "reverse_proxy": false,
+    "trusted_host_patterns": 2,
+    "page_cache_max_age": 3600,
+    "css_preprocess": true,
+    "js_preprocess": true
+  }
+}
