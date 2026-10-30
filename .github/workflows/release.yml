@@ -15,10 +15,10 @@ jobs:
       id-token: write      # OIDC token for Sigstore keyless signing
       attestations: write  # store build provenance attestations
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
           cache: false     # don't let a poisoned cache into release builds
@@ -35,7 +35,7 @@ jobs:
 
       # Signs a SLSA build-provenance attestation for every binary.
       # Users verify with: gh attestation verify <file> --repo jtarleton/stagecoach-scan
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-path: 'dist/stagecoach-scan-*'
 
